@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Корзина</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="products.js"></script>
+</head>
+<body>
+
+<header class="header">
+  <a
+    href="index.html"
+    class="header__title"
+  >
+    shoe store
+  </a>
+  <a
+    href="cart.html"
+    class="header__button cart"
+  >
+    <div id="cart-count" class="cart__count">0</div>
+    <img
+      src="img/cart.png"
+      class="header__button-icon"
+    >
+  </a>
+</header>
+
+<div class="container">
+  <h2>Корзина</h2>
+
+  <div id="cards-small"></div>
+</div>
+
+<script src="main.js"></script>
+<script>
+  'use strict'
+
+  let cardIds = localStorage.getItem('items')
+  cardIds = JSON.parse(cardIds)
+
+  function unique(arr) {
+    return Array.from(new Set(arr));
+  }
+
+  let uniqueCardIds = unique(cardIds)
+
+  function getProductById (id) {
+    let result
+    products.forEach(function(item, index, array) {
+      if (item.id === id) {
+        result = item
+      }
+    })
+    return result
+  }
+
+  let smallCards = []
+  uniqueCardIds.forEach(function(item, index, array) {
+    let product = getProductById(item)
+    smallCards.push(product)
+  })
+
+  function addCardsToHtml(arr) {
+    let html = '';
+
+    if (arr.length > 0) {
+      arr.forEach(function(item, index, array) {
+        html += `
+        <div class="card-small">
+          <img
+            src="${item.image}"
+            class="card-small__image"
+          >
+          <div class="card-small__text">
+            <div>
+              ${item.name}
+            </div>
+            <div class="card-small__cost">
+              Стоимость: ${item.cost} р.
+            </div>
+          </div>
+          <div>
+            <span id="delete" class="close" onclick="deleteFromCart(${item.id})">&times;</span>
+          </div>
+        </div>
+      `
+      })
+    }
+
+    let cards = document.getElementById('cards-small')
+    cards.innerHTML = html
+  }
+
+  addCardsToHtml(smallCards)
+
+  function deleteFromCart(id) {
+    changeCount(-1)
+    let countInCart = localStorage.getItem('count')
+    counterElement.innerText = countInCart
+
+    smallCards.forEach(function(item, index, array) {
+      let indexInArray = smallCards.findIndex(item => item.id === id);
+      if (indexInArray > -1) {
+        smallCards.splice(indexInArray, 1);
+        addCardsToHtml(smallCards)
+      }
+    })
+
+    let itemsInCart = localStorage.getItem('items')
+    itemsInCart = JSON.parse(itemsInCart)
+    let idInCart = itemsInCart.indexOf(id)
+
+    itemsInCart.splice(idInCart, 1);
+    console.log(itemsInCart);
+
+    let arr = []
+    arr = JSON.stringify(itemsInCart)
+    localStorage.setItem('items', arr)
+  }
+</script>
+
+</body>
+</html>
