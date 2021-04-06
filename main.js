@@ -7,8 +7,6 @@ function changeCount(num) {
     localStorage.setItem('count', count)
   } else {
     count = +countLS + num;
-    console.log(count);
-
     localStorage.setItem('count', count)
   }
 }
@@ -18,4 +16,3 @@ let countOfProductsInCart = localStorage.getItem('count')
 if (countOfProductsInCart) {
   counterElement.innerText = countOfProductsInCart
 }
-

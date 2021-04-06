@@ -75,27 +75,52 @@
   let cards = document.getElementById('cards')
   cards.innerHTML = html
 
+  function isProductInCart(id) {
+    let itemsInLS = localStorage.getItem('items')
+    itemsInLS = JSON.parse(itemsInLS)
+    let isProduct = false
+
+    itemsInLS.forEach(function(item, index, array) {
+      if (item.id === id) {
+        isProduct = true
+      }
+    })
+    return isProduct
+  }
+
   function addToCard(cardId) {
     changeCount(1)
     let counterElement = document.getElementById('cart-count')
-    let countOfProductsInCart = localStorage.getItem('count')
-    counterElement.innerText = countOfProductsInCart
+    counterElement.innerText = localStorage.getItem('count')
 
     modal.style.display = 'block';
 
-    let arr = []
-    if (!localStorage.getItem('items')) {
-      arr.push(cardId)
-      arr = JSON.stringify(arr)
-      localStorage.setItem('items', arr)
-    } else {
-      arr = localStorage.getItem('items')
-      arr = JSON.parse(arr)
-
-      arr.push(cardId)
-      arr = JSON.stringify(arr)
-      localStorage.setItem('items', arr)
+    let items = []
+    let count = 1
+    let obj = {
+      id: cardId,
+      count: count
     }
+
+    if (!localStorage.getItem('items')) {
+      items.push(obj)
+    } else {
+      items = localStorage.getItem('items')
+      items = JSON.parse(items)
+
+      console.log(isProductInCart(cardId));
+      if (isProductInCart(cardId)) {
+        items.forEach(function(item, index, array) {
+          if (item.id === cardId) {
+            item.count += 1
+          }
+        })
+      } else {
+        items.push(obj)
+      }
+    }
+    items = JSON.stringify(items)
+    localStorage.setItem('items', items)
   }
 
   span.onclick = function() {

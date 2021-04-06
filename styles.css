@@ -86,8 +86,8 @@ button {
     padding: 7px 12px 7px 7px;
     display: flex;
     box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,0.12);
-    width: 50%;
-    margin-bottom: 16px;
+    width: 500px;
+    margin-bottom: 22px;
 }
 
 .card-small__image {
@@ -103,6 +103,15 @@ button {
 
 .card-small__cost {
     margin-top: 16px;
+}
+
+.card-small__count {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.card-small__count-number {
+    margin-right: 16px;
 }
 
 .modal {

@@ -37,14 +37,8 @@
 <script>
   'use strict'
 
-  let cardIds = localStorage.getItem('items')
-  cardIds = JSON.parse(cardIds)
-
-  function unique(arr) {
-    return Array.from(new Set(arr));
-  }
-
-  let uniqueCardIds = unique(cardIds)
+  let cards = localStorage.getItem('items')
+  cards = JSON.parse(cards)
 
   function getProductById (id) {
     let result
@@ -57,8 +51,9 @@
   }
 
   let smallCards = []
-  uniqueCardIds.forEach(function(item, index, array) {
-    let product = getProductById(item)
+  cards.forEach(function(item, index, array) {
+    let product = getProductById(item.id)
+    product.count = item.count
     smallCards.push(product)
   })
 
@@ -79,6 +74,13 @@
             </div>
             <div class="card-small__cost">
               Стоимость: ${item.cost} р.
+            </div>
+            <div class="card-small__count">
+              <div class="card-small__count-number">${item.count} шт</div>
+              <div>
+                <button id="plus">+</button>
+                <button id="minus">-</button>
+              </div>
             </div>
           </div>
           <div>
@@ -113,7 +115,6 @@
     let idInCart = itemsInCart.indexOf(id)
 
     itemsInCart.splice(idInCart, 1);
-    console.log(itemsInCart);
 
     let arr = []
     arr = JSON.stringify(itemsInCart)
