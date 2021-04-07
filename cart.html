@@ -39,6 +39,7 @@
 
   let cards = localStorage.getItem('items')
   cards = JSON.parse(cards)
+  renderCards(cards)
 
   function getProductById (id) {
     let result
@@ -49,13 +50,6 @@
     })
     return result
   }
-
-  let smallCards = []
-  cards.forEach(function(item, index, array) {
-    let product = getProductById(item.id)
-    product.count = item.count
-    smallCards.push(product)
-  })
 
   function addCardsToHtml(arr) {
     let html = '';
@@ -91,34 +85,42 @@
       })
     }
 
-    let cards = document.getElementById('cards-small')
-    cards.innerHTML = html
+    let cardElement = document.getElementById('cards-small')
+    cardElement.innerHTML = html
   }
 
-  addCardsToHtml(smallCards)
+  function renderCards (items) {
+    let cardsArray = []
+    items.forEach(function(item, index, array) {
+      let product = getProductById(item.id)
+      product.count = item.count
+      cardsArray.push(product)
+    })
+    addCardsToHtml(cardsArray)
+  }
 
   function deleteFromCart(id) {
-    changeCount(-1)
-    let countInCart = localStorage.getItem('count')
-    counterElement.innerText = countInCart
-
-    smallCards.forEach(function(item, index, array) {
-      let indexInArray = smallCards.findIndex(item => item.id === id);
-      if (indexInArray > -1) {
-        smallCards.splice(indexInArray, 1);
-        addCardsToHtml(smallCards)
-      }
-    })
-
     let itemsInCart = localStorage.getItem('items')
     itemsInCart = JSON.parse(itemsInCart)
-    let idInCart = itemsInCart.indexOf(id)
 
-    itemsInCart.splice(idInCart, 1);
+    for (let index = 0; index < itemsInCart.length; index++) {
+      let indexInLS = itemsInCart.findIndex(item => item.id === id);
 
-    let arr = []
-    arr = JSON.stringify(itemsInCart)
-    localStorage.setItem('items', arr)
+      if (indexInLS  > -1) {
+        let countOfDeletedProduct = itemsInCart[indexInLS].count
+        changeCount(-countOfDeletedProduct)
+
+        let counterElement = document.getElementById('cart-count')
+        counterElement.innerText = localStorage.getItem('count')
+
+        itemsInCart.splice(indexInLS, 1);
+        break
+      }
+    }
+
+    renderCards(itemsInCart)
+    let newItemsInCart = JSON.stringify(itemsInCart)
+    localStorage.setItem('items', newItemsInCart)
   }
 </script>
 

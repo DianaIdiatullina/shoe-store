@@ -108,7 +108,6 @@
       items = localStorage.getItem('items')
       items = JSON.parse(items)
 
-      console.log(isProductInCart(cardId));
       if (isProductInCart(cardId)) {
         items.forEach(function(item, index, array) {
           if (item.id === cardId) {
