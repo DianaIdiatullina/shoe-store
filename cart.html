@@ -136,6 +136,10 @@
       } else {
         itemsInCart[indexInLS].count -=1
         changeCount(-1)
+
+        if(itemsInCart[indexInLS].count === 0) {
+          itemsInCart.splice(indexInLS, 1)
+        }
       }
       break
     }
@@ -144,8 +148,8 @@
     counterElement.innerText = localStorage.getItem('count')
     renderCards (itemsInCart)
 
-    itemsInCart = JSON.stringify(itemsInCart)
-    localStorage.setItem('items', itemsInCart)
+    let newItemsInCart = JSON.stringify(itemsInCart)
+    localStorage.setItem('items', newItemsInCart)
   }
 </script>
 
