@@ -72,8 +72,8 @@
             <div class="card-small__count">
               <div class="card-small__count-number">${item.count} шт</div>
               <div>
-                <button id="plus">+</button>
-                <button id="minus">-</button>
+                <button id="plus" onclick="changeCountProduct(${item.id}, true)">+</button>
+                <button id="minus" onclick="changeCountProduct(${item.id}, false)">-</button>
               </div>
             </div>
           </div>
@@ -118,9 +118,34 @@
       }
     }
 
-    renderCards(itemsInCart)
+    renderCards (itemsInCart)
     let newItemsInCart = JSON.stringify(itemsInCart)
     localStorage.setItem('items', newItemsInCart)
+  }
+
+  function changeCountProduct(id, isPlus) {
+    let itemsInCart = localStorage.getItem('items')
+    itemsInCart = JSON.parse(itemsInCart)
+
+    for (let index = 0; index < itemsInCart.length; index++) {
+      let indexInLS = itemsInCart.findIndex(item => item.id === id);
+
+      if (isPlus) {
+        itemsInCart[indexInLS].count +=1
+        changeCount(1)
+      } else {
+        itemsInCart[indexInLS].count -=1
+        changeCount(-1)
+      }
+      break
+    }
+
+    let counterElement = document.getElementById('cart-count')
+    counterElement.innerText = localStorage.getItem('count')
+    renderCards (itemsInCart)
+
+    itemsInCart = JSON.stringify(itemsInCart)
+    localStorage.setItem('items', itemsInCart)
   }
 </script>
 
