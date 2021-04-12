@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Новости</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <a
+    href="index.html"
+    class="header__title"
+  >
+    shoe store
+  </a>
+  <a
+    href="news.html"
+    class="header__link"
+  >
+    Новости
+  </a>
+  <a
+    href="cart.html"
+    class="header__button cart"
+  >
+    <div id="cart-count" class="cart__count">0</div>
+    <img
+      src="img/cart.png"
+      class="header__button-icon"
+    >
+  </a>
+</header>
+
+<div class="container">
+  <h2>Новости</h2>
+
+  <div id="news-small"></div>
+</div>
+
+<script src="main.js"></script>
+<script>
+  'use strict'
+
+  let counter = document.getElementById('cart-count')
+  counter.innerText = localStorage.getItem('count')
+
+  let news = [
+    {
+      id: 1,
+      title: 'Возможность использовать промокоды на сайте',
+      image: 'https://img.megatop.by/actions/YJ8StXVGCOuYc3dFxM56Kg6OhlWTOyI8tCmE0OSh.jpg',
+      text: 'Теперь при бронировании товаров на сайте можно будет воспользоваться промокодом и получить дополнительные скидки.'
+    }
+  ]
+
+  function addCardsToHtml(arr) {
+    let html = '';
+
+    if (arr.length > 0) {
+      arr.forEach(function(item, index, array) {
+        html += `
+        <div class="news-small">
+          <img
+            src="${item.image}"
+            class="news-small__image"
+          >
+          <div class="news-small__text">
+            <div class="news-small__text-title">
+              ${item.title}
+            </div>
+            <div class="news-small__text-preview">
+              ${item.text}
+            </div>
+          </div>
+        </div>
+      `
+      })
+    }
+
+    let newsElement = document.getElementById('news-small')
+    newsElement.innerHTML = html
+  }
+
+  addCardsToHtml(news)
+
+</script>
+
+</body>
+</html>
