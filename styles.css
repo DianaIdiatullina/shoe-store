@@ -129,6 +129,7 @@ button {
 .news-small__image {
     height: 65px;
     width: 100px;
+    object-fit: cover;
 }
 
 .news-small__text {
