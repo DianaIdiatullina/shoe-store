@@ -5,47 +5,70 @@
   <title>Items list</title>
   <link rel="stylesheet" href="styles.css">
   <script src="products.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 </head>
 <body>
 
-<header class="header">
-  <a
-    href="index.html"
-    class="header__title"
-  >
-    shoe store
-  </a>
-  <a
-    href="news.html"
-    class="header__link"
-  >
-    Новости
-  </a>
-  <a
-    href="cart.html"
-    class="header__button cart"
-  >
-    <div id="cart-count" class="cart__count">0</div>
-    <img
-      src="img/cart.png"
-      class="header__button-icon"
+<div id="app">
+  <header class="header">
+    <a
+      href="index.html"
+      class="header__title"
     >
-  </a>
-</header>
-
-<div class="container">
-  <div id="cards" class="cards"></div>
-</div>
-
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span id="close" class="close">&times;</span>
-    <h2>Товар добавлен в корзину</h2>
-    <a href="cart.html">
-      <button>
-        Перейти в корзину
-      </button>
+      shoe store
     </a>
+    <a
+      href="news.html"
+      class="header__link"
+    >
+      Новости
+    </a>
+    <a
+      href="cart.html"
+      class="header__button cart"
+    >
+      <div id="cart-count" class="cart__count">0</div>
+      <img
+        src="img/cart.png"
+        class="header__button-icon"
+      >
+    </a>
+  </header>
+
+  <div class="container">
+    <div id="cards" class="cards">
+      <div
+        v-for="(item, index) in products"
+        :key="index"
+        class="card"
+      >
+        <img
+          :src="item.image"
+          class="card__image"
+        >
+        <div class="card__name">
+          {{ item.name }}
+        </div>
+        <div>
+          <button id="add-to-cart" @click="addToCard(item.id)">
+            В корзину
+          </button>
+          <span class="card__cost">{{ item.cost }} р.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="closePopup">&times;</span>
+      <h2>Товар добавлен в корзину</h2>
+      <a href="cart.html">
+        <button>
+          Перейти в корзину
+        </button>
+      </a>
+    </div>
   </div>
 </div>
 
@@ -53,90 +76,75 @@
 <script>
   'use strict'
 
-  let modal = document.getElementById('modal');
-  let span = document.getElementById('close');
-
-  let html = ''
-
-  products.forEach(function(item, index, array) {
-    html += `
-    <div class="card">
-      <img
-        src="${item.image}"
-        class="card__image"
-      >
-      <div class="card__name">
-        ${item.name}
-      </div>
-      <div>
-        <button id="add-to-cart" onclick="addToCard(${item.id})">
-          В корзину
-        </button>
-        <span class="card__cost">${item.cost} р.</span>
-      </div>
-    </div>
-    `
-  })
-
-  let cards = document.getElementById('cards')
-  cards.innerHTML = html
-
-  function isProductInCart(id) {
-    let itemsInLS = localStorage.getItem('items')
-    itemsInLS = JSON.parse(itemsInLS)
-    let isProduct = false
-
-    itemsInLS.forEach(function(item, index, array) {
-      if (item.id === id) {
-        isProduct = true
+  let app = new Vue({
+    el: '#app',
+    data: function () {
+      return {
+        products: products
       }
-    })
-    return isProduct
-  }
+    },
+    mounted: function () {
+      let modal = document.getElementById('modal');
 
-  function addToCard(cardId) {
-    changeCount(1)
-    let counterElement = document.getElementById('cart-count')
-    counterElement.innerText = localStorage.getItem('count')
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      }
+    },
+    methods: {
+      closePopup() {
+        let modal = document.getElementById('modal');
+        modal.style.display = 'none';
+      },
+      isProductInCart(id) {
+        let itemsInLS = localStorage.getItem('items')
+        itemsInLS = JSON.parse(itemsInLS)
+        let isProduct = false
 
-    modal.style.display = 'block';
-
-    let items = []
-    let count = 1
-    let obj = {
-      id: cardId,
-      count: count
-    }
-
-    if (!localStorage.getItem('items')) {
-      items.push(obj)
-    } else {
-      items = localStorage.getItem('items')
-      items = JSON.parse(items)
-
-      if (isProductInCart(cardId)) {
-        items.forEach(function(item, index, array) {
-          if (item.id === cardId) {
-            item.count += 1
+        itemsInLS.forEach(function(item, index, array) {
+          if (item.id === id) {
+            isProduct = true
           }
         })
-      } else {
-        items.push(obj)
+        return isProduct
+      },
+      addToCard(cardId) {
+        changeCount(1)
+        let counterElement = document.getElementById('cart-count')
+        counterElement.innerText = localStorage.getItem('count')
+
+        let modal = document.getElementById('modal');
+        modal.style.display = 'block';
+
+        let items = []
+        let count = 1
+        let obj = {
+          id: cardId,
+          count: count
+        }
+
+        if (!localStorage.getItem('items')) {
+          items.push(obj)
+        } else {
+          items = localStorage.getItem('items')
+          items = JSON.parse(items)
+
+          if (this.isProductInCart(cardId)) {
+            items.forEach(function(item, index, array) {
+              if (item.id === cardId) {
+                item.count += 1
+              }
+            })
+          } else {
+            items.push(obj)
+          }
+        }
+        items = JSON.stringify(items)
+        localStorage.setItem('items', items)
       }
     }
-    items = JSON.stringify(items)
-    localStorage.setItem('items', items)
-  }
-
-  span.onclick = function() {
-    modal.style.display = 'none';
-  }
-
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = 'none';
-    }
-  }
+  })
 </script>
 </body>
 </html>

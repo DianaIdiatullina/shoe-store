@@ -4,85 +4,85 @@
   <meta charset="UTF-8">
   <title>Новости</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 </head>
 <body>
 
-<header class="header">
-  <a
-    href="index.html"
-    class="header__title"
-  >
-    shoe store
-  </a>
-  <a
-    href="news.html"
-    class="header__link"
-  >
-    Новости
-  </a>
-  <a
-    href="cart.html"
-    class="header__button cart"
-  >
-    <div id="cart-count" class="cart__count">0</div>
-    <img
-      src="img/cart.png"
-      class="header__button-icon"
+<div id="app">
+  <header class="header">
+    <a
+      href="index.html"
+      class="header__title"
     >
-  </a>
-</header>
+      shoe store
+    </a>
+    <a
+      href="news.html"
+      class="header__link"
+    >
+      Новости
+    </a>
+    <a
+      href="cart.html"
+      class="header__button cart"
+    >
+      <div id="cart-count" class="cart__count">0</div>
+      <img
+        src="img/cart.png"
+        class="header__button-icon"
+      >
+    </a>
+  </header>
 
-<div class="container">
-  <h2>Новости</h2>
+  <div class="container">
+    <h2>Новости</h2>
 
-  <div id="news-small"></div>
+    <div
+      v-for="(item, index) in news"
+      :key="index"
+      class="news-small"
+    >
+      <img
+        :src="item.image"
+        class="news-small__image"
+      >
+      <div class="news-small__text">
+        <div class="news-small__text-title">
+          {{ item.title }}
+        </div>
+        <div class="news-small__text-preview">
+          {{ item.short_description }}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="main.js"></script>
 <script>
   'use strict'
 
-  let counter = document.getElementById('cart-count')
-  counter.innerText = localStorage.getItem('count')
+  let app = new Vue({
+    el: '#app',
+    data: function () {
+      return {
+        news: {}
+      }
+    },
+    mounted: function () {
+      let counter = document.getElementById('cart-count')
+      counter.innerText = localStorage.getItem('count')
 
-  let news = {}
-
-  async function getNews() {
-    let response = await fetch('news.json');
-    let data = await response.json();
-    news = data.data.news.items
-    addCardsToHtml(news)
-  }
-
-  document.addEventListener("DOMContentLoaded", getNews);
-
-  function addCardsToHtml(arr) {
-    let html = '';
-
-    if (arr.length > 0) {
-      arr.forEach(function(item, index, array) {
-        html += `
-        <div class="news-small">
-          <img
-            src="${item.image}"
-            class="news-small__image"
-          >
-          <div class="news-small__text">
-            <div class="news-small__text-title">
-              ${item.title}
-            </div>
-            <div class="news-small__text-preview">
-              ${item.short_description}
-            </div>
-          </div>
-        </div>
-      `
-      })
+      document.addEventListener("DOMContentLoaded", this.getNews);
+    },
+    methods: {
+      async getNews() {
+        let response = await fetch('news.json');
+        let data = await response.json();
+        this.news = data.data.news.items
+      }
     }
-
-    let newsElement = document.getElementById('news-small')
-    newsElement.innerHTML = html
-  }
+  })
 </script>
 
 </body>

@@ -5,158 +5,160 @@
   <title>Корзина</title>
   <link rel="stylesheet" href="styles.css">
   <script src="products.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 </head>
 <body>
 
-<header class="header">
-  <a
-    href="index.html"
-    class="header__title"
-  >
-    shoe store
-  </a>
-  <a
-    href="news.html"
-    class="header__link"
-  >
-    Новости
-  </a>
-  <a
-    href="cart.html"
-    class="header__button cart"
-  >
-    <div id="cart-count" class="cart__count">0</div>
-    <img
-      src="img/cart.png"
-      class="header__button-icon"
+<div id="app">
+  <header class="header">
+    <a
+      href="index.html"
+      class="header__title"
     >
-  </a>
-</header>
+      shoe store
+    </a>
+    <a
+      href="news.html"
+      class="header__link"
+    >
+      Новости
+    </a>
+    <a
+      href="cart.html"
+      class="header__button cart"
+    >
+      <div id="cart-count" class="cart__count">0</div>
+      <img
+        src="img/cart.png"
+        class="header__button-icon"
+      >
+    </a>
+  </header>
 
-<div class="container">
-  <h2>Корзина</h2>
+  <div class="container">
+    <h2>Корзина</h2>
 
-  <div id="cards-small"></div>
+    <div id="cards-small">
+      <div
+        v-for="(item, index) in cardsTemplateArray"
+        :key="index"
+        class="card-small"
+      >
+        <img
+          :src="item.image"
+          class="card-small__image"
+        >
+        <div class="card-small__text">
+          <div>
+            {{ item.name }}
+          </div>
+          <div class="card-small__cost">
+            Стоимость: {{ item.cost }} р.
+          </div>
+          <div class="card-small__count">
+            <div class="card-small__count-number">{{ item.count }} шт</div>
+            <div>
+              <button id="plus" @click="changeCountProduct(item.id, true)">+</button>
+              <button id="minus" @click="changeCountProduct(item.id, false)">-</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <span id="delete" class="close" @click="deleteFromCart(item.id)">&times;</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="main.js"></script>
 <script>
   'use strict'
 
-  let cards = localStorage.getItem('items')
-  cards = JSON.parse(cards)
-  renderCards(cards)
-
-  function getProductById (id) {
-    let result
-    products.forEach(function(item, index, array) {
-      if (item.id === id) {
-        result = item
+  let app = new Vue({
+    el: '#app',
+    data: function () {
+      return {
+        cardsTemplateArray: []
       }
-    })
-    return result
-  }
+    },
+    mounted: function () {
+      let cards = localStorage.getItem('items')
+      cards = JSON.parse(cards)
+      this.renderCards(cards)
+    },
+    methods: {
+      getProductById(id) {
+        let result
+        products.forEach(function(item, index, array) {
+          if (item.id === id) {
+            result = item
+          }
+        })
+        return result
+      },
+      renderCards(items) {
+        let cardsArray = []
+        items.forEach((item, index, array) => {
+          let product = this.getProductById(item.id)
+          product.count = item.count
+          cardsArray.push(product)
+        })
+        this.cardsTemplateArray = cardsArray
+      },
+      deleteFromCart(id) {
+        let itemsInCart = localStorage.getItem('items')
+        itemsInCart = JSON.parse(itemsInCart)
 
-  function addCardsToHtml(arr) {
-    let html = '';
+        for (let index = 0; index < itemsInCart.length; index++) {
+          let indexInLS = itemsInCart.findIndex(item => item.id === id);
 
-    if (arr.length > 0) {
-      arr.forEach(function(item, index, array) {
-        html += `
-        <div class="card-small">
-          <img
-            src="${item.image}"
-            class="card-small__image"
-          >
-          <div class="card-small__text">
-            <div>
-              ${item.name}
-            </div>
-            <div class="card-small__cost">
-              Стоимость: ${item.cost} р.
-            </div>
-            <div class="card-small__count">
-              <div class="card-small__count-number">${item.count} шт</div>
-              <div>
-                <button id="plus" onclick="changeCountProduct(${item.id}, true)">+</button>
-                <button id="minus" onclick="changeCountProduct(${item.id}, false)">-</button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <span id="delete" class="close" onclick="deleteFromCart(${item.id})">&times;</span>
-          </div>
-        </div>
-      `
-      })
-    }
+          if (indexInLS  > -1) {
+            let countOfDeletedProduct = itemsInCart[indexInLS].count
+            changeCount(-countOfDeletedProduct)
 
-    let cardElement = document.getElementById('cards-small')
-    cardElement.innerHTML = html
-  }
+            let counterElement = document.getElementById('cart-count')
+            counterElement.innerText = localStorage.getItem('count')
 
-  function renderCards (items) {
-    let cardsArray = []
-    items.forEach(function(item, index, array) {
-      let product = getProductById(item.id)
-      product.count = item.count
-      cardsArray.push(product)
-    })
-    addCardsToHtml(cardsArray)
-  }
+            itemsInCart.splice(indexInLS, 1);
+            break
+          }
+        }
 
-  function deleteFromCart(id) {
-    let itemsInCart = localStorage.getItem('items')
-    itemsInCart = JSON.parse(itemsInCart)
+        this.renderCards(itemsInCart)
+        let newItemsInCart = JSON.stringify(itemsInCart)
+        localStorage.setItem('items', newItemsInCart)
+      },
+      changeCountProduct(id, isPlus) {
+        let itemsInCart = localStorage.getItem('items')
+        itemsInCart = JSON.parse(itemsInCart)
 
-    for (let index = 0; index < itemsInCart.length; index++) {
-      let indexInLS = itemsInCart.findIndex(item => item.id === id);
+        for (let index = 0; index < itemsInCart.length; index++) {
+          let indexInLS = itemsInCart.findIndex(item => item.id === id);
 
-      if (indexInLS  > -1) {
-        let countOfDeletedProduct = itemsInCart[indexInLS].count
-        changeCount(-countOfDeletedProduct)
+          if (isPlus) {
+            itemsInCart[indexInLS].count +=1
+            changeCount(1)
+          } else {
+            itemsInCart[indexInLS].count -=1
+            changeCount(-1)
+
+            if(itemsInCart[indexInLS].count === 0) {
+              itemsInCart.splice(indexInLS, 1)
+            }
+          }
+          break
+        }
 
         let counterElement = document.getElementById('cart-count')
         counterElement.innerText = localStorage.getItem('count')
+        this.renderCards(itemsInCart)
 
-        itemsInCart.splice(indexInLS, 1);
-        break
+        let newItemsInCart = JSON.stringify(itemsInCart)
+        localStorage.setItem('items', newItemsInCart)
       }
     }
-
-    renderCards (itemsInCart)
-    let newItemsInCart = JSON.stringify(itemsInCart)
-    localStorage.setItem('items', newItemsInCart)
-  }
-
-  function changeCountProduct(id, isPlus) {
-    let itemsInCart = localStorage.getItem('items')
-    itemsInCart = JSON.parse(itemsInCart)
-
-    for (let index = 0; index < itemsInCart.length; index++) {
-      let indexInLS = itemsInCart.findIndex(item => item.id === id);
-
-      if (isPlus) {
-        itemsInCart[indexInLS].count +=1
-        changeCount(1)
-      } else {
-        itemsInCart[indexInLS].count -=1
-        changeCount(-1)
-
-        if(itemsInCart[indexInLS].count === 0) {
-          itemsInCart.splice(indexInLS, 1)
-        }
-      }
-      break
-    }
-
-    let counterElement = document.getElementById('cart-count')
-    counterElement.innerText = localStorage.getItem('count')
-    renderCards (itemsInCart)
-
-    let newItemsInCart = JSON.stringify(itemsInCart)
-    localStorage.setItem('items', newItemsInCart)
-  }
+  })
 </script>
 
 </body>
